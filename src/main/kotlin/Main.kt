@@ -17,14 +17,32 @@ val board = object {
 	val positions = arrayOf(emptyRow(), emptyRow(), emptyRow())
 
     override fun toString(): String {
-        val string = StringBuilder()
-        for (line in positions) {
+        val boardString = StringBuilder()
+        // Uses indices to avoid printing underline after last row
+        for (lineIndex in positions.indices) {
+            val line = positions[lineIndex]
+            val rowString = StringBuilder()
+
             for (row in line) {
-                string.append("| $row ")
+                rowString.append("| $row ")
             }
-            string.append("|\n")
+            rowString.append("|")
+
+            boardString.append(rowString)
+
+            // TODO check if there's a more efficient way to do this
+            // No newlines or underlines after the last row
+            if (lineIndex < (positions.size - 1)) {
+                boardString.append('\n')
+                var underline = rowString.toString()
+                underline = underline
+                    .replace(' ', '-').replace('X', '-').replace('O', '-')
+                    .replace('|', ' ')
+                boardString.append(underline).append('\n')
+
+            }
         }
-        return string.toString()
+        return boardString.toString()
     }
 }
 
