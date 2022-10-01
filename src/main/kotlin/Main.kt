@@ -1,4 +1,4 @@
-enum class Mark {
+enum class Symbol {
 	EMPTY {
 		override fun toString(): String = " "
 	},
@@ -12,28 +12,67 @@ enum class Mark {
 	}
 }
 
-class Board {
-	private fun emptyRow() = arrayOf(Mark.EMPTY, Mark.X, Mark.O)
-	private val positions = arrayOf(emptyRow(), emptyRow(), emptyRow())
+class Grid {
+	val size = 3
+	private val maxIndex = size - 1
+	private val squares = Array(size) { Array(size) { Symbol.EMPTY } }
 
-	operator fun get(index: Int) : Mark {
-        val row: Int = index / 3
-        val column: Int = index % 3
-        return positions[row][column]
-    }
+	operator fun get(column: Int, row: Int): Symbol = squares[row][column]
+	operator fun set(column: Int, row: Int, value: Symbol) {
+		squares[row][column] = value
+	}
 
-    operator fun set(index: Int, value: Mark) {
-        val row: Int = index / 3
-        val column: Int = index % 3
-		println("$index  $row  $column")
-        positions[row][column] = value
-    }
+	fun checkForWin(symbol: Symbol): Boolean {
+		for (column in 0..maxIndex) {
+			if (this[column, 0] != symbol) {
+				continue
+			}
+			for (row in 0..maxIndex) {
+				if (this[column, row] != symbol) {
+					break
+				} else if (row == maxIndex) {
+					return true
+				}
+			}
+		}
+
+		for (row in 0..maxIndex) {
+			if (this[0, row] != symbol) {
+				continue
+			}
+			for (column in 0..maxIndex) {
+				if (this[column, row] != symbol) {
+					break
+				} else if (column == maxIndex) {
+					return true
+				}
+			}
+		}
+
+		for (square in 0..maxIndex) {
+			if (this[square, square] != symbol) {
+				break
+			} else if (square == maxIndex) {
+				return true
+			}
+		}
+
+		for (square in 0..maxIndex) {
+			if (this[maxIndex - square, square] != symbol) {
+				break
+			} else if (square == maxIndex) {
+				return true
+			}
+		}
+
+		return false
+	}
 
 	override fun toString(): String {
-		val boardString = StringBuilder()
+		val gridString = StringBuilder()
 		// Uses indices to avoid printing underline after last row
-		for (rowIndex in positions.indices) {
-			val row = positions[rowIndex]
+		for (rowIndex in squares.indices) {
+			val row = squares[rowIndex]
 			val rowString = StringBuilder()
 
 			for (column in row) {
@@ -41,28 +80,33 @@ class Board {
 			}
 			rowString.append("|")
 
-			boardString.append(rowString)
+			gridString.append(rowString)
 
 			// TODO check if there's a more efficient way to do this
 			// No newlines or underlines after the last row
-			if (rowIndex < (positions.size - 1)) {
-				boardString.append('\n')
+			if (rowIndex < maxIndex) {
+				gridString.append('\n')
 				var underline = rowString.toString()
 				underline = underline
 					.replace(' ', '-').replace('X', '-').replace('O', '-')
 					.replace('|', ' ')
-				boardString.append(underline).append('\n')
+				gridString.append(underline).append('\n')
 
 			}
 		}
-		return boardString.toString()
+		return gridString.toString()
 	}
 }
 
 fun main() {
-	val board = Board()
-	println(board)
-	println()
-	board[7] = Mark.O
-	println(board)
+	val grid = Grid()
+	grid[0, 0] = Symbol.X
+	grid[1, 1] = Symbol.O
+	grid[2, 2] = Symbol.X
+	grid[0, 2] = Symbol.O
+	grid[2, 0] = Symbol.O
+	println(grid)
+	println("Has O won: ${grid.checkForWin(Symbol.O)}")
+	println("Has X won: ${grid.checkForWin(Symbol.X)}")
+	println("Has EMPTY won: ${grid.checkForWin(Symbol.EMPTY)}")
 }
