@@ -23,6 +23,28 @@ class Grid {
 		squares[row][column] = value
 	}
 
+	fun getArray(): Array<Unit> {
+		return  Array(size * 2 + 2) { axis ->
+			if (axis < size) {
+				Array(size) { block ->
+					intArrayOf(axis % size, block)
+				}
+			} else if (axis < size * 2) {
+				Array(size) { block ->
+					intArrayOf(block, axis % size)
+				}
+			} else if (axis % (size * 2) == 0) {
+				Array(size) { block ->
+					intArrayOf(block, block)
+				}
+			} else {
+				Array(size) { block ->
+					intArrayOf(size - block, block)
+				}
+			}
+		}
+	}
+
 	// TODO surely there's a better way to write this
 	fun checkForWin(symbol: Symbol): Boolean {
 		// Check each column top to bottom
