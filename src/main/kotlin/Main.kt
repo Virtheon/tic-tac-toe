@@ -12,37 +12,34 @@ enum class Symbol {
 	}
 }
 
-class Grid {
-	val size = 3
+class Grid(size: Int) {
+	val size = size
+
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 	private val squares = Array(size) { Array(size) { Symbol.EMPTY } }
 
+	// Three-dimensional array that stores all axes in which a player can win
+	// Each axis is an array of blocks, and each block is a 2D vector
+	// Where X is the length of the grid, the first X axes are vertical,
+	// the next X axes are horizontal, and the next two axes are top left to bottom right and top right to bottom left
+	val winAxes = Array(size * 2 + 2) { axis ->
+		Array(size) { block ->
+			if (axis < size) {
+				intArrayOf(axis % size, block)
+			} else if (axis < size * 2) {
+				intArrayOf(block, axis % size)
+			} else if (axis % (size * 2) == 0) {
+				intArrayOf(block, block)
+			} else {
+				intArrayOf(maxIndex - block, block)
+			}
+		}
+	}
+
 	operator fun get(column: Int, row: Int): Symbol = squares[row][column]
 	operator fun set(column: Int, row: Int, value: Symbol) {
 		squares[row][column] = value
-	}
-
-	fun getArray(): Array<Unit> {
-		return  Array(size * 2 + 2) { axis ->
-			if (axis < size) {
-				Array(size) { block ->
-					intArrayOf(axis % size, block)
-				}
-			} else if (axis < size * 2) {
-				Array(size) { block ->
-					intArrayOf(block, axis % size)
-				}
-			} else if (axis % (size * 2) == 0) {
-				Array(size) { block ->
-					intArrayOf(block, block)
-				}
-			} else {
-				Array(size) { block ->
-					intArrayOf(size - block, block)
-				}
-			}
-		}
 	}
 
 	// TODO surely there's a better way to write this
@@ -127,7 +124,7 @@ class Grid {
 }
 
 fun main() {
-	val grid = Grid()
+	val grid = Grid(3)
 	grid[0, 0] = Symbol.X
 	grid[1, 1] = Symbol.O
 	grid[2, 2] = Symbol.X
@@ -137,4 +134,11 @@ fun main() {
 	println("Has O won: ${grid.checkForWin(Symbol.O)}")
 	println("Has X won: ${grid.checkForWin(Symbol.X)}")
 	println("Has EMPTY won: ${grid.checkForWin(Symbol.EMPTY)}")
+
+	for (axis in grid.winAxes) {
+		for (block in axis) {
+			print("(${block[0]}, ${block[1]}) ")
+		}
+		println()
+	}
 }
