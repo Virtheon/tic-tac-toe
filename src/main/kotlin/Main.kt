@@ -14,7 +14,6 @@ enum class Symbol {
 
 class Grid {
 	val size = 3
-
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 	private val squares = Array(size) { Array(size) { Symbol.EMPTY } }
@@ -24,8 +23,8 @@ class Grid {
 		squares[row][column] = value
 	}
 
+	// TODO surely there's a better way to write this
 	fun checkForWin(symbol: Symbol): Boolean {
-		// TODO surely there's a better way to write this
 		// Check each column top to bottom
 		for (column in 0..maxIndex) {
 			if (this[column, 0] != symbol) {
@@ -62,7 +61,8 @@ class Grid {
 				return true
 			}
 		}
-		// CHeck top right to bottom left
+
+		// Check top right to bottom left
 		for (square in 0..maxIndex) {
 			if (this[maxIndex - square, square] != symbol) {
 				break
