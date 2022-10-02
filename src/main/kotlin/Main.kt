@@ -1,20 +1,10 @@
-enum class Symbol {
-	EMPTY {
-		override fun toString(): String = " "
-	},
+enum class Symbol(private val string: String) {
+	EMPTY(" "), X("X"), O("O");
 
-	X {
-		override fun toString(): String = "X"
-	},
-
-	O {
-		override fun toString(): String = "O"
-	}
+	override fun toString(): String = string
 }
 
-class Grid(size: Int) {
-	val size = size
-
+class Grid(val size: Int) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 	private val squares = Array(size) { Array(size) { Symbol.EMPTY } }
@@ -42,55 +32,49 @@ class Grid(size: Int) {
 		squares[row][column] = value
 	}
 
-	// TODO surely there's a better way to write this
-	fun checkForWin(symbol: Symbol): Boolean {
-		// Check each column top to bottom
-		for (column in 0..maxIndex) {
-			if (this[column, 0] != symbol) {
-				continue
+	// The function effectively checks the symbol against each winnable axis,
+	// and switches out every symbol in that axis to a line in string form until a full axis is found.
+	// then it returns the string it built. Alternatively, returns null if no win is found.
+	// TODO: board vs grid
+	fun checkForWin(symbol: Symbol): String? {
+		val boardString = toString()
+		for (axis in winAxes) {
+			// Makes an easily editable 2D string to represent the grid
+			val editableBoard: MutableList<StringBuilder> = mutableListOf()
+			for (line in boardString.split('\n')) {
+				editableBoard.add(StringBuilder(line))
 			}
-			for (row in 0..maxIndex) {
-				if (this[column, row] != symbol) {
+
+			// Uses an index to know when to stop and return the final string
+			for (blockIndex in axis.indices) {
+				val block = axis[blockIndex]
+				val column = block[0]
+				val row = block[1]
+
+				if (this[block[0], block[1]] == symbol) {
+					// Two functions to represent the relationship between the block indexes and their position on
+					// the editable board
+					fun lineIndex(row: Int) = row * 2
+					fun characterIndex(column: Int) = column * 4 + 2
+
+					// TODO: change line orientations dynamically
+					editableBoard[lineIndex(row)][characterIndex(column)] = '/'
+
+					if (blockIndex == maxIndex) {
+						val finalBoard = StringBuilder()
+						for (line in editableBoard) {
+							finalBoard.append(line).append('\n')
+						}
+						finalBoard.deleteCharAt(finalBoard.length - 1)
+						return finalBoard.toString()
+					}
+				} else {
 					break
-				} else if (row == maxIndex) {
-					return true
 				}
 			}
 		}
 
-		// Check each row left to right
-		for (row in 0..maxIndex) {
-			if (this[0, row] != symbol) {
-				continue
-			}
-			for (column in 0..maxIndex) {
-				if (this[column, row] != symbol) {
-					break
-				} else if (column == maxIndex) {
-					return true
-				}
-			}
-		}
-
-		// Check top left to bottom right
-		for (square in 0..maxIndex) {
-			if (this[square, square] != symbol) {
-				break
-			} else if (square == maxIndex) {
-				return true
-			}
-		}
-
-		// Check top right to bottom left
-		for (square in 0..maxIndex) {
-			if (this[maxIndex - square, square] != symbol) {
-				break
-			} else if (square == maxIndex) {
-				return true
-			}
-		}
-
-		return false
+		return null
 	}
 
 	override fun toString(): String {
@@ -116,7 +100,6 @@ class Grid(size: Int) {
 					.replace(' ', '-').replace('X', '-').replace('O', '-')
 					.replace('|', ' ')
 				gridString.append(underline).append('\n')
-
 			}
 		}
 		return gridString.toString()
@@ -131,14 +114,7 @@ fun main() {
 	grid[0, 2] = Symbol.O
 	grid[2, 0] = Symbol.O
 	println(grid)
-	println("Has O won: ${grid.checkForWin(Symbol.O)}")
-	println("Has X won: ${grid.checkForWin(Symbol.X)}")
-	println("Has EMPTY won: ${grid.checkForWin(Symbol.EMPTY)}")
-
-	for (axis in grid.winAxes) {
-		for (block in axis) {
-			print("(${block[0]}, ${block[1]}) ")
-		}
-		println()
-	}
+	println("Has O won: \n${grid.checkForWin(Symbol.O)}")
+	println("Has X won: \n${grid.checkForWin(Symbol.X)}")
+	println("Has EMPTY won: \n${grid.checkForWin(Symbol.EMPTY)}")
 }
