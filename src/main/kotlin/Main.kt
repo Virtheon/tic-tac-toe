@@ -33,7 +33,7 @@ class Board(val size: Int) {
 	}
 
 	// The function effectively checks the symbol against each winnable axis,
-	// and switches out every symbol in that axis to a line in string form until a full axis is found.
+	// and switches out every symbol in that axis to a strikethrough in string form until a full axis is found.
 	// then it returns the string it built. Alternatively, returns null if no win is found.
 	fun checkForWin(symbol: Symbol): String? {
 		val boardString = toString()
@@ -51,22 +51,19 @@ class Board(val size: Int) {
 				val row = block[1]
 
 				if (this[block[0], block[1]] == symbol) {
-					// Two functions to represent the relationship between the block indexes and their position on
-					// the editable board
-					fun lineIndex(row: Int) = row * 2
-					fun characterIndex(column: Int) = column * 4 + 2
+					// Two values to represent access to exact position in the editable board
+					val lineIndex = row * 2
+					val charIndex = column * 4 + 2
 
-					// Changes line orientation based on whether it's a vertical, horizontal or diagonal axis
+					// Changes strikethrough orientation based on whether it's a vertical, horizontal or diagonal axis
 					val axisIndex = winAxes.indexOf(axis)
-					if (axisIndex < size) {
-						editableBoard[lineIndex(row)][characterIndex(column)] = '|'
-					} else if (axisIndex < size * 2) {
-						editableBoard[lineIndex(row)][characterIndex(column)] = '—'
-					} else if (axisIndex % (size * 2) == 0) {
-						editableBoard[lineIndex(row)][characterIndex(column)] = '\\'
-					} else {
-						editableBoard[lineIndex(row)][characterIndex(column)] = '/'
-					}
+					val strikethrough: Char =
+						if (axisIndex < size) '|'
+						else if (axisIndex < size * 2) '—'
+						else if (axisIndex % (size * 2) == 0) '\\'
+						else '/'
+
+					editableBoard[lineIndex][charIndex] = strikethrough
 
 					if (blockIndex == maxIndex) {
 						val finalBoard = StringBuilder()
