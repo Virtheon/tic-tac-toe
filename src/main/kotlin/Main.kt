@@ -4,14 +4,14 @@ enum class Symbol(private val string: String) {
 	override fun toString(): String = string
 }
 
-class Grid(val size: Int) {
+class Board(val size: Int) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 	private val squares = Array(size) { Array(size) { Symbol.EMPTY } }
 
 	// Three-dimensional array that stores all axes in which a player can win
 	// Each axis is an array of blocks, and each block is a 2D vector
-	// Where X is the length of the grid, the first X axes are vertical,
+	// Where X is the length of the board, the first X axes are vertical,
 	// the next X axes are horizontal, and the next two axes are top left to bottom right and top right to bottom left
 	val winAxes = Array(size * 2 + 2) { axis ->
 		Array(size) { block ->
@@ -35,11 +35,10 @@ class Grid(val size: Int) {
 	// The function effectively checks the symbol against each winnable axis,
 	// and switches out every symbol in that axis to a line in string form until a full axis is found.
 	// then it returns the string it built. Alternatively, returns null if no win is found.
-	// TODO: board vs grid
 	fun checkForWin(symbol: Symbol): String? {
 		val boardString = toString()
 		for (axis in winAxes) {
-			// Makes an easily editable 2D string to represent the grid
+			// Makes an easily editable 2D string to represent the board
 			val editableBoard: MutableList<StringBuilder> = mutableListOf()
 			for (line in boardString.split('\n')) {
 				editableBoard.add(StringBuilder(line))
@@ -57,8 +56,17 @@ class Grid(val size: Int) {
 					fun lineIndex(row: Int) = row * 2
 					fun characterIndex(column: Int) = column * 4 + 2
 
-					// TODO: change line orientations dynamically
-					editableBoard[lineIndex(row)][characterIndex(column)] = '/'
+					// Changes line orientation based on whether it's a vertical, horizontal or diagonal axis
+					val axisIndex = winAxes.indexOf(axis)
+					if (axisIndex < size) {
+						editableBoard[lineIndex(row)][characterIndex(column)] = '|'
+					} else if (axisIndex < size * 2) {
+						editableBoard[lineIndex(row)][characterIndex(column)] = '—'
+					} else if (axisIndex % (size * 2) == 0) {
+						editableBoard[lineIndex(row)][characterIndex(column)] = '\\'
+					} else {
+						editableBoard[lineIndex(row)][characterIndex(column)] = '/'
+					}
 
 					if (blockIndex == maxIndex) {
 						val finalBoard = StringBuilder()
@@ -78,7 +86,7 @@ class Grid(val size: Int) {
 	}
 
 	override fun toString(): String {
-		val gridString = StringBuilder()
+		val boardString = StringBuilder()
 		// Uses indices to avoid printing underline after last row
 		for (rowIndex in squares.indices) {
 			val row = squares[rowIndex]
@@ -89,32 +97,32 @@ class Grid(val size: Int) {
 			}
 			rowString.append("|")
 
-			gridString.append(rowString)
+			boardString.append(rowString)
 
 			// TODO check if there's a more efficient way to do this
 			// No newlines or underlines after the last row
 			if (rowIndex < maxIndex) {
-				gridString.append('\n')
+				boardString.append('\n')
 				var underline = rowString.toString()
 				underline = underline
-					.replace(' ', '-').replace('X', '-').replace('O', '-')
+					.replace(' ', '—').replace('X', '—').replace('O', '—')
 					.replace('|', ' ')
-				gridString.append(underline).append('\n')
+				boardString.append(underline).append('\n')
 			}
 		}
-		return gridString.toString()
+		return boardString.toString()
 	}
 }
 
 fun main() {
-	val grid = Grid(3)
-	grid[0, 0] = Symbol.X
-	grid[1, 1] = Symbol.O
-	grid[2, 2] = Symbol.X
-	grid[0, 2] = Symbol.O
-	grid[2, 0] = Symbol.O
-	println(grid)
-	println("Has O won: \n${grid.checkForWin(Symbol.O)}")
-	println("Has X won: \n${grid.checkForWin(Symbol.X)}")
-	println("Has EMPTY won: \n${grid.checkForWin(Symbol.EMPTY)}")
+	val board = Board(4)
+	board[0, 0] = Symbol.X
+	board[2, 2] = Symbol.X
+	board[3, 3] = Symbol.X
+	board[1, 1] = Symbol.X
+
+	println(board)
+	println("Has O won: \n${board.checkForWin(Symbol.O)}")
+	println("Has X won: \n${board.checkForWin(Symbol.X)}")
+	println("Has EMPTY won: \n${board.checkForWin(Symbol.EMPTY)}")
 }
