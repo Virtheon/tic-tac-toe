@@ -9,26 +9,11 @@ class Board(val size: Int) {
 	private val maxIndex = size - 1
 	private val squares = Array(size) { Array(size) { Symbol.EMPTY } }
 
-	// TODO: sort comments
-	// Three-dimensional array that stores all axes in which a player can win
+	// Three-dimensional array that stores all axes in which a player can win.
 	// Each axis is an array of blocks, and each block is a 2D vector
-	// Where X is the length of the board, the first X axes are vertical,
-	// the next X axes are horizontal, and the next two axes are top left to bottom right and top right to bottom left
-	enum class AxisType(val strikethrough: Char) {
-		VERTICAL('|'), HORIZONTAL('—'), DESCENDING('\\'), ASCENDING('/');
-
-		companion object {
-			@JvmStatic
-			fun getType(axisIndex: Int, boardSize: Int): AxisType {
-				return if (axisIndex < boardSize) VERTICAL
-				else if (axisIndex < boardSize * 2) HORIZONTAL
-				else if (axisIndex == boardSize * 2) DESCENDING
-				else ASCENDING
-
-			}
-		}
-	}
-
+	// where N is the length of the board (ie. the number of columns/rows to go through), the first N axes are vertical,
+	// the next N axes are horizontal, and the next two axes are top left to bottom right and top right to bottom left.
+	// AxisType provides a function to simplify determining which type of axis it is based on the index
 	val winAxes = Array(size * 2 + 2) { axisIndex ->
 		Array(size) { blockIndex ->
 			when (AxisType.getType(axisIndex, size)) {
@@ -40,6 +25,22 @@ class Board(val size: Int) {
 					intArrayOf(blockIndex, blockIndex)
 				AxisType.ASCENDING ->
 					intArrayOf(maxIndex - blockIndex, blockIndex)
+			}
+		}
+	}
+
+	enum class AxisType(val strikethroughChar: Char) {
+		VERTICAL('|'), HORIZONTAL('—'),
+		DESCENDING('\\'), ASCENDING('/');
+
+		companion object {
+			@JvmStatic
+			fun getType(axisIndex: Int, boardSize: Int): AxisType {
+				return if (axisIndex < boardSize) VERTICAL
+				else if (axisIndex < boardSize * 2) HORIZONTAL
+				else if (axisIndex == boardSize * 2) DESCENDING
+				else ASCENDING
+
 			}
 		}
 	}
@@ -74,7 +75,7 @@ class Board(val size: Int) {
 
 					// Changes strikethrough orientation based on whether it's a vertical, horizontal or diagonal axis
 					val axisIndex = winAxes.indexOf(axis)
-					val strikethrough: Char = AxisType.getType(axisIndex, size).strikethrough
+					val strikethrough: Char = AxisType.getType(axisIndex, size).strikethroughChar
 
 					editableBoard[lineIndex][charIndex] = strikethrough
 
