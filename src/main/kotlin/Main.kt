@@ -6,7 +6,7 @@ enum class Symbol(private val string: String) {
 
 class Board private constructor(
 	val size: Int,
-	val winAxes: Array<Array<IntArray>>,
+	private val winAxes: Array<Array<IntArray>>,
 	private val squares: Array<Array<Symbol>>
 ) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
@@ -72,7 +72,7 @@ class Board private constructor(
 	// Checks for the symbol on each square in each axis
 	// Returns when all squares have been checked, and immediately tries a new axis if any square doesn't match
 	// Returns null if there is no winning axis
-	fun getWinAxis(symbol: Symbol): Array<IntArray>? {
+	private fun getWinAxis(symbol: Symbol): Array<IntArray>? {
 		for (axis in winAxes) {
 			for (square in axis) {
 				if (this[square[0], square[1]] == symbol) {
@@ -87,51 +87,46 @@ class Board private constructor(
 		return null
 	}
 
-	// The function effectively checks the symbol against each winnable axis,
-	// and switches out every symbol in that axis to a strikethrough in string form until a full axis is found.
-	// then it returns the string it built. Alternatively, returns null if no win is found.
-	// TODO: check against winAxes first, get axis index (maybe in separate method), then start making string
-	fun checkForWin(symbol: Symbol): String? {
-		val boardString = toString()
-		for (axis in winAxes) {
-			// Makes an easily editable 2D string to represent the board
-			val editableBoard: MutableList<StringBuilder> = mutableListOf()
+	fun hasWon(symbol: Symbol): Boolean {
+		return (getWinAxis(symbol) != null)
+	}
+
+	// The function looks for a winning axis. If there is one, it takes the string form of the board and
+	// replaces the symbols in each square with a matching line.
+	// If there is no winning axis, it returns null
+	fun drawBoardWithWin(symbol: Symbol): String? {
+		val winAxis = getWinAxis(symbol)
+		if (winAxis == null) {
+			return null
+		} else {
+			// Builds a 2D table of editable strings based on the original string form
+			val boardString = toString()
+			val editableBoard = mutableListOf<StringBuilder>()
 			for (line in boardString.split('\n')) {
 				editableBoard.add(StringBuilder(line))
 			}
 
-			// Uses an index to know when to stop and return the final string
-			for (squareIndex in axis.indices) {
-				val square = axis[squareIndex]
+			for (square in winAxis) {
 				val column = square[0]
 				val row = square[1]
 
-				if (this[square[0], square[1]] == symbol) {
-					// Two values to represent access to exact position in the editable board
-					val lineIndex = row * 2
-					val charIndex = column * 4 + 2
+				val lineIndex = row * 2
+				val charIndex = column * 4 + 2
 
-					// Changes strikethrough orientation based on whether it's a vertical, horizontal or diagonal axis
-					val axisIndex = winAxes.indexOf(axis)
-					val strikethrough: Char = AxisType.getType(axisIndex, size).strikethroughChar
+				// Changes strikethrough orientation based on whether it's a vertical, horizontal or diagonal axis
+				val axisIndex = winAxes.indexOf(winAxis)
+				val strikethrough: Char = AxisType.getType(axisIndex, size).strikethroughChar
 
-					editableBoard[lineIndex][charIndex] = strikethrough
-
-					if (squareIndex == maxIndex) {
-						val finalBoard = StringBuilder()
-						for (line in editableBoard) {
-							finalBoard.append(line).append('\n')
-						}
-						finalBoard.deleteCharAt(finalBoard.length - 1)
-						return finalBoard.toString()
-					}
-				} else {
-					break
-				}
+				editableBoard[lineIndex][charIndex] = strikethrough
 			}
-		}
 
-		return null
+			val finalBoard = StringBuilder()
+			for (line in editableBoard) {
+				finalBoard.append(line).append('\n')
+			}
+			finalBoard.deleteCharAt(finalBoard.length - 1)
+			return finalBoard.toString()
+		}
 	}
 
 	// TODO: perhaps avoid using squares val directly
@@ -172,9 +167,9 @@ fun main() {
 	board[1, 1] = Symbol.X
 
 	println(board)
-	println("Has O won: \n${board.checkForWin(Symbol.O)}")
-	println("Has X won: \n${board.checkForWin(Symbol.X)}")
-	println("Has EMPTY won: \n${board.checkForWin(Symbol.EMPTY)}")
+	println("Has O won: \n${board.drawBoardWithWin(Symbol.O)}")
+	println("Has X won: \n${board.drawBoardWithWin(Symbol.X)}")
+	println("Has EMPTY won: \n${board.drawBoardWithWin(Symbol.EMPTY)}")
 
 	val b2 = Board(board)
 	b2[0, 0] = Symbol.O
