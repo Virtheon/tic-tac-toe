@@ -69,6 +69,9 @@ class Board private constructor(
 				}.toTypedArray()
 			)
 
+	// Checks for the symbol on each square in each axis
+	// Returns when all squares have been checked, and immediately tries a new axis if any square doesn't match
+	// Returns null if there is no winning axis
 	fun getWinAxis(symbol: Symbol): Array<IntArray>? {
 		for (axis in winAxes) {
 			for (square in axis) {
