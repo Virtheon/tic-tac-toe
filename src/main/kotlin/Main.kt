@@ -148,14 +148,13 @@ class Board private constructor(
 
 			boardString.append(rowString)
 
-			// TODO check if there's a more efficient way to do this
-			// No newlines or underlines after the last row
+			// No newlines or underlines after the last row.
+			// Underlines just replace space, X and O with dashes and | with spaces.
 			if (rowIndex < maxIndex) {
 				boardString.append('\n')
-				var underline = rowString.toString()
-				underline = underline
-					.replace(' ', '—').replace('X', '—').replace('O', '—')
-					.replace('|', ' ')
+				val underline = rowString
+					.replace(Regex("[ XO|]"))
+					{ if (it.value == "|") " " else "—" }
 				boardString.append(underline).append('\n')
 			}
 		}
