@@ -4,28 +4,27 @@ enum class Symbol(private val string: String) {
 	override fun toString(): String = string
 }
 
+// Board keeps all the squares in a two-dimensional array of Symbols. They're stored by line first (the opposite
+// order from the bracket operators) to make it easier to print (see: toString())
+
+// For optimisation purposes, the board contains a three dimensional array of all possible axes through which
+// a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
+// AxisType provides a function to determine way the axis is oriented based on the index.
 class Board private constructor(
 	val size: Int,
-	private val winAxes: Array<Array<IntArray>>,
-	private val squares: Array<Array<Symbol>>
+	private val squares: Array<Array<Symbol>>,
+	private val winAxes: Array<Array<IntArray>>
 ) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 
-	// TODO clean up comments (again)
-	// Three-dimensional array that stores all axes in which a player can win.
-	// Each axis is an array of squares, and each square is a 2D vector
-	// where N is the length of the board (ie. the number of columns/rows to go through), the first N axes are vertical,
-	// the next N axes are horizontal, and the next two axes are top left to bottom right and top right to bottom left.
-	// AxisType provides a function to simplify determining which type of axis it is based on the index
-
-	enum class AxisType(val strikethroughChar: Char) {
+	enum class AxisOrientation(val strikethroughChar: Char) {
 		VERTICAL('|'), HORIZONTAL('—'),
 		DESCENDING('\\'), ASCENDING('/');
 
 		companion object {
 			@JvmStatic
-			fun getType(axisIndex: Int, boardSize: Int): AxisType {
+			fun getType(axisIndex: Int, boardSize: Int): AxisOrientation {
 				return if (axisIndex < boardSize) VERTICAL
 				else if (axisIndex < boardSize * 2) HORIZONTAL
 				else if (axisIndex == boardSize * 2) DESCENDING
@@ -40,33 +39,38 @@ class Board private constructor(
 		squares[row][column] = value
 	}
 
+	// Normal constructor.
+	// Based on the size, builds a clean 2D array for squares, and
+	// generates a 3D array with each square's coordinates through each axis
 	constructor(size: Int) :
 			this(size,
 
+				Array(size) { Array(size) { Symbol.EMPTY } },
+
 				Array(size * 2 + 2) { axisIndex ->
 					Array(size) { squareIndex ->
-						when (AxisType.getType(axisIndex, size)) {
-							AxisType.VERTICAL ->
+						when (AxisOrientation.getType(axisIndex, size)) {
+							AxisOrientation.VERTICAL ->
 								intArrayOf(axisIndex % size, squareIndex)
-							AxisType.HORIZONTAL ->
+							AxisOrientation.HORIZONTAL ->
 								intArrayOf(squareIndex, axisIndex % size)
-							AxisType.DESCENDING ->
+							AxisOrientation.DESCENDING ->
 								intArrayOf(squareIndex, squareIndex)
-							AxisType.ASCENDING ->
+							AxisOrientation.ASCENDING ->
 								intArrayOf(size - 1 - squareIndex, squareIndex)
 						}
 					}
-				},
-
-				Array(size) { Array(size) { Symbol.EMPTY } })
+				})
 
 	constructor(board: Board) :
 			this(
 				board.size,
-				board.winAxes,
+
 				board.squares.map { row ->
 					row.clone()
-				}.toTypedArray()
+				}.toTypedArray(),
+
+				board.winAxes
 			)
 
 	// Checks for the symbol on each square in each axis
@@ -115,7 +119,7 @@ class Board private constructor(
 
 				// Changes strikethrough orientation based on whether it's a vertical, horizontal or diagonal axis
 				val axisIndex = winAxes.indexOf(winAxis)
-				val strikethrough: Char = AxisType.getType(axisIndex, size).strikethroughChar
+				val strikethrough: Char = AxisOrientation.getType(axisIndex, size).strikethroughChar
 
 				editableBoard[lineIndex][charIndex] = strikethrough
 			}
@@ -129,7 +133,7 @@ class Board private constructor(
 		}
 	}
 
-	// TODO: perhaps avoid using squares val directly
+	// The only function that directly accesses squares, seeing as it's optimised for printing line by line
 	override fun toString(): String {
 		val boardString = StringBuilder()
 		// Uses indices to avoid printing underline after last row
