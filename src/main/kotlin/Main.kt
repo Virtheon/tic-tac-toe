@@ -1,3 +1,6 @@
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
+
 enum class Symbol(private val string: String) {
 	EMPTY(" "), X("X"), O("O");
 
@@ -152,9 +155,11 @@ class Board private constructor(
 			// Underlines just replace space, X and O with dashes and | with spaces.
 			if (rowIndex < maxIndex) {
 				boardString.append('\n')
-				val underline = rowString
-					.replace(Regex("[ XO|]"))
-					{ if (it.value == "|") " " else "—" }
+				val underline = rowString.toString()
+					.replace(' ', '—')
+					.replace('X', '—')
+					.replace('O', '—')
+					.replace('|', ' ')
 				boardString.append(underline).append('\n')
 			}
 		}
