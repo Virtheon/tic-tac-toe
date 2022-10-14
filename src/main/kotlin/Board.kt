@@ -40,11 +40,15 @@ class Board private constructor(
 	operator fun set(column: Int, row: Int, value: Symbol) {
 		squares[row][column] = value
 	}
+	operator fun get(position: Pair<Int, Int>): Symbol = this[position.first, position.second]
+	operator fun set(position: Pair<Int, Int>, value: Symbol) {
+		this[position.first, position.second] = value
+	}
 
 	// Normal constructor.
 	// Based on the size, builds a clean 2D array for squares, and
 	// generates a 3D array with each square's coordinates through each axis
-	constructor(size: Int) :
+	constructor(size: Int = 3) :
 			this(size,
 
 				Array(size) { Array(size) { Symbol.EMPTY } },
