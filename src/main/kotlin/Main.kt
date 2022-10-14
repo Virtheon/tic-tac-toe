@@ -1,5 +1,7 @@
 package tictactoe
 
+import kotlin.random.Random
+
 fun asSymbol(symbol: String): Symbol =
 	when (symbol) {
 		"X" -> Symbol.X
@@ -16,7 +18,7 @@ fun oppositeSymbol(symbol: Symbol): Symbol =
 
 fun asRowAndColumn(position: Int) = Pair(position % 3, position / 3)
 
-fun computerMove(computerSymbol: Symbol): Pair<Int, Int> {
+fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Pair<Int, Int> {
 	return Pair(0, 0)
 }
 
@@ -50,6 +52,6 @@ fun main() {
 			playing = false
 		}
 
-		board[computerMove(computerSymbol)] = computerSymbol
+		board[computerMove(board, computerSymbol, Random)] = computerSymbol
 	}
 }
