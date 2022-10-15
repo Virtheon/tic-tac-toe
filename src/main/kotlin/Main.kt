@@ -1,5 +1,6 @@
 package tictactoe
 
+import java.util.Calendar
 import kotlin.random.Random
 
 fun toSymbol(symbol: String): Symbol =
@@ -40,16 +41,16 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 		}
 	}
 
-	val diagonals = arrayOf(
+	val diagonals = listOf(
 		Position(0, 0), Position(2, 0),
 		Position(0, 2), Position(2, 2)
-	).shuffle(random)
+	).shuffled(random)
 	val center = Position(1, 1)
-	val edges = arrayOf(
+	val edges = listOf(
 		Position(1, 0),
 		Position(0, 1), Position(2, 1),
 		Position(1, 2)
-	).shuffle(random)
+	).shuffled(random)
 
 	tempBoard = board.clone()
 	for (pos in diagonals) {
@@ -68,7 +69,7 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 		}
 	}
 
-	return Position(0, 0)
+	return throw Exception("Board full")
 }
 
 // TODO: position vs move
@@ -86,8 +87,12 @@ fun main() {
 	val userSymbol = toSymbol(userLetter)
 	val computerSymbol = oppositeOf(userSymbol)
 
+	// TODO: add tie
+	// TODO: add numbered board
+	// TODO: marked vs full/empty
 	while (playing) {
 		println(board)
+		println()
 		var userPosition: Int?
 		do {
 			println("Please pick a number between 1 and 9:")
@@ -95,14 +100,31 @@ fun main() {
 		} while (userPosition == null || userPosition !in 1..9)
 		userPosition--
 		val userMove = toPosition(userPosition)
-		board[userMove] = userSymbol
+		if (board[userMove] == Symbol.EMPTY) {
+			board[userMove] = userSymbol
+		} else {
+			println("Position already marked.")
+			Thread.sleep(1500)
+			println()
+			continue
+		}
 
 		if (board.hasWon(userSymbol)) {
+			println("You've won!")
 			println(board.drawBoardWithWin(userSymbol))
 			playing = false
+		} else {
+			println(board)
+			Thread.sleep(1500)
+			println()
+			println("The computer's move:")
+			board[computerMove(board, computerSymbol, Random(Calendar.getInstance().timeInMillis))] = computerSymbol
+			if (board.hasWon(computerSymbol)) {
+				Thread.sleep(1000)
+				println("The computer has won!")
+				println(board.drawBoardWithWin(computerSymbol))
+				playing = false
+			}
 		}
-		// TODO: show player's move first, then pause
-		// TODO: say who won
-		board[computerMove(board, computerSymbol, Random)] = computerSymbol
 	}
 }
