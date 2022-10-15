@@ -141,6 +141,8 @@ class Board private constructor(
 		}
 	}
 
+	fun clone(): Board = Board(this)
+
 	// The only function that directly accesses squares, seeing as it's optimised for printing line by line
 	override fun toString(): String {
 		val boardString = StringBuilder()
