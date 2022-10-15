@@ -26,14 +26,16 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 		for (row in 0 until 3) {
 			tempBoard = board.clone()
 
-			tempBoard[column, row] = computerSymbol
-			if (tempBoard.hasWon(computerSymbol)) {
-				return Position(column, row)
-			}
+			if (tempBoard[column, row] == Symbol.EMPTY) {
+				tempBoard[column, row] = computerSymbol
+				if (tempBoard.hasWon(computerSymbol)) {
+					return Position(column, row)
+				}
 
-			tempBoard[column, row] = enemySymbol
-			if (tempBoard.hasWon(enemySymbol)) {
-				return Position(column, row)
+				tempBoard[column, row] = enemySymbol
+				if (tempBoard.hasWon(enemySymbol)) {
+					return Position(column, row)
+				}
 			}
 		}
 	}
@@ -41,13 +43,13 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 	val diagonals = arrayOf(
 		Position(0, 0), Position(2, 0),
 		Position(0, 2), Position(2, 2)
-	)
+	).shuffle(random)
 	val center = Position(1, 1)
 	val edges = arrayOf(
 		Position(1, 0),
 		Position(0, 1), Position(2, 1),
 		Position(1, 2)
-	)
+	).shuffle(random)
 
 	tempBoard = board.clone()
 	for (pos in diagonals) {
