@@ -2,24 +2,24 @@ package tictactoe
 
 import kotlin.random.Random
 
-fun asSymbol(symbol: String): Symbol =
-	when (symbol) {
+fun String.asSymbol(): Symbol =
+	when (this) {
 		"X" -> Symbol.X
 		"O" -> Symbol.O
-		else -> throw Exception("Invalid symbol: $symbol")
+		else -> throw Exception("Invalid symbol: $this")
 	}
 
-fun oppositeSymbol(symbol: Symbol): Symbol =
-	when (symbol) {
+fun Symbol.opposite(): Symbol =
+	when (this) {
 		Symbol.X -> Symbol.O
 		Symbol.O -> Symbol.X
-		else -> throw Exception("Invalid symbol: $symbol")
+		else -> throw Exception("Invalid symbol: $this")
 	}
 
-fun asRowAndColumn(position: Int) = Pair(position % 3, position / 3)
+fun Int.asPosition() = Position(this % 3, this / 3)
 
-fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Pair<Int, Int> {
-	return Pair(0, 0)
+fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position {
+	return Position(0, 0)
 }
 
 fun main() {
@@ -33,8 +33,8 @@ fun main() {
 		userLetter = readln().uppercase()
 	}
 
-	val userSymbol = asSymbol(userLetter)
-	val computerSymbol = oppositeSymbol(userSymbol)
+	val userSymbol = userLetter.asSymbol()
+	val computerSymbol = userSymbol.opposite()
 
 	while (playing) {
 		println(board)
@@ -44,7 +44,7 @@ fun main() {
 			userPosition = readln().toIntOrNull()
 		} while (userPosition == null || userPosition !in 1..9)
 		userPosition--
-		val userMove = asRowAndColumn(userPosition)
+		val userMove = userPosition.asPosition()
 		board[userMove] = userSymbol
 
 		if (board.hasWon(userSymbol)) {

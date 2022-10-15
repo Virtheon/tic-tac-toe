@@ -1,5 +1,7 @@
 package tictactoe
 
+typealias Position = Pair<Int, Int>
+
 enum class Symbol(private val string: String) {
 	EMPTY(" "), X("X"), O("O");
 
@@ -40,8 +42,8 @@ class Board private constructor(
 	operator fun set(column: Int, row: Int, value: Symbol) {
 		squares[row][column] = value
 	}
-	operator fun get(position: Pair<Int, Int>): Symbol = this[position.first, position.second]
-	operator fun set(position: Pair<Int, Int>, value: Symbol) {
+	operator fun get(position: Position): Symbol = this[position.first, position.second]
+	operator fun set(position: Position, value: Symbol) {
 		this[position.first, position.second] = value
 	}
 
