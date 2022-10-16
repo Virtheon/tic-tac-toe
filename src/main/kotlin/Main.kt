@@ -72,7 +72,6 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 	return throw Exception("Board full")
 }
 
-// TODO: position vs move
 fun main() {
 	val board = Board()
 	var playing = true
@@ -88,22 +87,21 @@ fun main() {
 	val computerSymbol = oppositeOf(userSymbol)
 
 	// TODO: add numbered board
-	// TODO: marked vs full/empty
 	// TODO: perhaps improve sleep() length and timing
 	while (playing) {
 		println(board)
 		println()
 
-		var userPosition: Int?
+		var userMoveInt: Int?
 		do {
 			println("Please pick a number between 1 and 9:")
-			userPosition = readln().toIntOrNull()
-		} while (userPosition == null || userPosition !in 1..9)
-		userPosition--
+			userMoveInt = readln().toIntOrNull()
+		} while (userMoveInt == null || userMoveInt !in 1..9)
+		userMoveInt--
 
 		Thread.sleep(1500)
 
-		val userMove = toPosition(userPosition)
+		val userMove = toPosition(userMoveInt)
 		if (board[userMove] == Symbol.EMPTY) {
 			board[userMove] = userSymbol
 		} else {
