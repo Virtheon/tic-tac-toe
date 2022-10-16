@@ -21,7 +21,7 @@ class Board private constructor(
 ) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
-	public val isFull: Boolean
+	val isFull: Boolean
 		get() {
 			for (column in 0 until size) {
 				for (row in 0 until size) {
