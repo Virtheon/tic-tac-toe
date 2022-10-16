@@ -130,7 +130,7 @@ fun main() {
 
 		if (board.hasWon(userSymbol)) {
 			println("You've won!")
-			println(board.drawBoardWithWin(userSymbol))
+			println(board.drawWithWin(userSymbol))
 			playing = false
 		} else {
 			println(board)
@@ -146,7 +146,7 @@ fun main() {
 				if (board.hasWon(computerSymbol)) {
 					Thread.sleep(1000)
 					println("The computer has won!")
-					println(board.drawBoardWithWin(computerSymbol))
+					println(board.drawWithWin(computerSymbol))
 					playing = false
 				}
 			}

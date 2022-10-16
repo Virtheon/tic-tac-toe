@@ -134,7 +134,7 @@ class Board private constructor(
 	// The function looks for a winning axis. If there is one, it takes the string form of the board and
 	// replaces the symbols in each square with a matching line.
 	// If there is no winning axis, it returns null
-	fun drawBoardWithWin(symbol: Symbol): String? {
+	fun drawWithWin(symbol: Symbol): String? {
 		val winAxis = getWinAxis(symbol)
 		if (winAxis == null) {
 			return null
