@@ -13,7 +13,7 @@ enum class Symbol(private val string: String) {
 
 // For optimisation purposes, the board contains a three dimensional array of all possible axes through which
 // a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
-// AxisType provides a function to determine way the axis is oriented based on the index.
+// $AxisOrientation provides a function to determine way the axis is oriented based on the index.
 class Board private constructor(
 	val size: Int,
 	private val squares: Array<Array<Symbol>>,
