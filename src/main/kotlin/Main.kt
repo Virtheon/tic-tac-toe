@@ -86,8 +86,8 @@ fun main() {
 	val userSymbol = toSymbol(userLetter)
 	val computerSymbol = oppositeOf(userSymbol)
 
-	// TODO: add numbered board
-	// TODO: perhaps improve sleep() length and timing
+	// TODO: add board string with numbers
+	// TODO: improve sleep() length and timing
 	while (playing) {
 		println(board)
 		println()
