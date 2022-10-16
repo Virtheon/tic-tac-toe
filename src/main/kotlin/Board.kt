@@ -28,13 +28,13 @@ enum class Symbol(private val string: String) {
 // Board keeps all the squares in a two-dimensional array of Symbols. They're stored by line first (the opposite
 // order from the bracket operators) to make it easier to print (see: toString())
 
-// For optimisation purposes, the board contains a three dimensional array of all possible axes through which
+// For optimisation purposes, the board contains a two-dimensional of all possible axes through which
 // a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
-// $AxisOrientation provides a function to determine way the axis is oriented based on the index.
+// AxisOrientation provides a function to determine way the axis is oriented based on the index.
 class Board private constructor(
 	val size: Int,
 	private val squares: Array<Array<Symbol>>,
-	private val winAxes: Array<Array<IntArray>>
+	private val winAxes: Array<Array<Position>>
 ) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
@@ -87,13 +87,13 @@ class Board private constructor(
 					Array(size) { squareIndex ->
 						when (AxisOrientation.getType(axisIndex, size)) {
 							AxisOrientation.VERTICAL ->
-								intArrayOf(axisIndex % size, squareIndex)
+								Position(axisIndex % size, squareIndex)
 							AxisOrientation.HORIZONTAL ->
-								intArrayOf(squareIndex, axisIndex % size)
+								Position(squareIndex, axisIndex % size)
 							AxisOrientation.DESCENDING ->
-								intArrayOf(squareIndex, squareIndex)
+								Position(squareIndex, squareIndex)
 							AxisOrientation.ASCENDING ->
-								intArrayOf(size - 1 - squareIndex, squareIndex)
+								Position(size - 1 - squareIndex, squareIndex)
 						}
 					}
 				})
@@ -112,10 +112,10 @@ class Board private constructor(
 	// Checks for the symbol on each square in each axis
 	// Returns when all squares have been checked, and immediately tries a new axis if any square doesn't match
 	// Returns null if there is no winning axis
-	private fun getWinAxis(symbol: Symbol): Array<IntArray>? {
+	private fun getWinAxis(symbol: Symbol): Array<Position>? {
 		for (axis in winAxes) {
 			for (square in axis) {
-				if (this[square[0], square[1]] == symbol) {
+				if (this[square] == symbol) {
 					if (axis.indexOf(square) == maxIndex) {
 						return axis
 					}
@@ -147,8 +147,7 @@ class Board private constructor(
 			}
 
 			for (square in winAxis) {
-				val column = square[0]
-				val row = square[1]
+				val (column, row) = square
 
 				val lineIndex = row * 2
 				val charIndex = column * 4 + 2
