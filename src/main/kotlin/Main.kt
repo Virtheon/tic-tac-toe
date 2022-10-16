@@ -87,18 +87,22 @@ fun main() {
 	val userSymbol = toSymbol(userLetter)
 	val computerSymbol = oppositeOf(userSymbol)
 
-	// TODO: add tie
 	// TODO: add numbered board
 	// TODO: marked vs full/empty
+	// TODO: perhaps improve sleep() length and timing
 	while (playing) {
 		println(board)
 		println()
+
 		var userPosition: Int?
 		do {
 			println("Please pick a number between 1 and 9:")
 			userPosition = readln().toIntOrNull()
 		} while (userPosition == null || userPosition !in 1..9)
 		userPosition--
+
+		Thread.sleep(1500)
+
 		val userMove = toPosition(userPosition)
 		if (board[userMove] == Symbol.EMPTY) {
 			board[userMove] = userSymbol
@@ -115,15 +119,21 @@ fun main() {
 			playing = false
 		} else {
 			println(board)
-			Thread.sleep(1500)
+			Thread.sleep(1000)
 			println()
-			println("The computer's move:")
-			board[computerMove(board, computerSymbol, Random(Calendar.getInstance().timeInMillis))] = computerSymbol
-			if (board.hasWon(computerSymbol)) {
-				Thread.sleep(1000)
-				println("The computer has won!")
-				println(board.drawBoardWithWin(computerSymbol))
+
+			if (board.isFull) {
+				println("The board is full! It's a tie.")
 				playing = false
+			} else {
+				println("The computer's move:")
+				board[computerMove(board, computerSymbol, Random(Calendar.getInstance().timeInMillis))] = computerSymbol
+				if (board.hasWon(computerSymbol)) {
+					Thread.sleep(1000)
+					println("The computer has won!")
+					println(board.drawBoardWithWin(computerSymbol))
+					playing = false
+				}
 			}
 		}
 	}
