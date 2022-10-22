@@ -4,12 +4,23 @@ It's a tic-tac-toe game, not sure what to tell ya.
 
 # Build Instructions
 
-It's a simple Kotlin project. Here are some resources for building:
+It's a simple Kotlin project.
+To compile it with the command line tool, go to the main directory and run:
 
+`kotlinc src/main/kotlin -include-runtime -d tictactoe.jar`
+
+or whichever variation works for your system.
+
+Here are some extra resources for building:
+
+Command line tool:
 https://kotlinlang.org/docs/command-line.html
 
+IDEs (primarily IntelliJ and Android Studio):
 https://kotlinlang.org/docs/kotlin-ide.html
 
+Gradle:
 https://kotlinlang.org/docs/gradle.html
 
+Maven:
 https://kotlinlang.org/docs/maven.html
