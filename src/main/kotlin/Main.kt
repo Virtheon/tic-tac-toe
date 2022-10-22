@@ -88,6 +88,7 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 		}
 	}
 
+	@Suppress("UNREACHABLE_CODE")
 	return throw Exception("Board full")
 }
 
