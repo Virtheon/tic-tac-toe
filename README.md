@@ -7,7 +7,9 @@ It's a tic-tac-toe game, not sure what to tell ya.
 It's a simple Kotlin project.
 To compile it with the command line tool, go to the main directory and run:
 
-`kotlinc src/main/kotlin -include-runtime -d tictactoe.jar`
+```sh
+kotlinc src/main/kotlin -include-runtime -d tictactoe.jar
+```
 
 or whichever variation works for your system.
 
