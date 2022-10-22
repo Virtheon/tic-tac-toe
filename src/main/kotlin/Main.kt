@@ -36,6 +36,8 @@ fun oppositeOf(symbol: Symbol): Symbol =
 
 fun toPosition(position: Int) = Position(position % 3, position / 3)
 
+// TODO: Implement Board::undo
+// TODO: maybe use threads
 fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position {
 	val enemySymbol = oppositeOf(computerSymbol)
 
@@ -86,6 +88,7 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 		}
 	}
 
+	@Suppress("UNREACHABLE_CODE")
 	return throw Exception("Board full")
 }
 
