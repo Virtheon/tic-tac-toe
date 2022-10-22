@@ -52,7 +52,7 @@ class Board private constructor(
 		}
 
 	enum class AxisOrientation(val strikethroughChar: Char) {
-		VERTICAL('|'), HORIZONTAL('—'),
+		VERTICAL('|'), HORIZONTAL('-'),
 		DESCENDING('\\'), ASCENDING('/');
 
 		companion object {
@@ -191,9 +191,9 @@ class Board private constructor(
 			if (rowIndex < maxIndex) {
 				boardString.append('\n')
 				val underline = rowString.toString()
-					.replace(' ', '—')
-					.replace('X', '—')
-					.replace('O', '—')
+					.replace(' ', '-')
+					.replace('X', '-')
+					.replace('O', '-')
 					.replace('|', ' ')
 				boardString.append(underline).append('\n')
 			}
