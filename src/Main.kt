@@ -107,7 +107,7 @@ fun main() {
 	val computerSymbol = oppositeOf(userSymbol)
 
 	// TODO: add board string with numbers
-	// TODO: improve sleep() length and timing
+	// TODO: make computer search for wins before losses
 	while (playing) {
 		println(board)
 		println()
@@ -119,21 +119,23 @@ fun main() {
 		} while (userMoveInt == null || userMoveInt !in 1..9)
 		userMoveInt--
 
-		Thread.sleep(1500)
-
 		val userMove = toPosition(userMoveInt)
 		if (board[userMove] == Symbol.EMPTY) {
 			board[userMove] = userSymbol
 		} else {
+			Thread.sleep(500)
 			println("Position already marked.")
-			Thread.sleep(1500)
+			Thread.sleep(1000)
 			println()
 			continue
 		}
 
+		Thread.sleep(600)
+
 		if (board.hasWon(userSymbol)) {
 			println("You've won!")
 			println(board.drawWithWin(userSymbol))
+			Thread.sleep(2500)
 			playing = false
 		} else {
 			println(board)
@@ -142,6 +144,7 @@ fun main() {
 
 			if (board.isFull) {
 				println("The board is full! It's a tie.")
+				Thread.sleep(2500)
 				playing = false
 			} else {
 				println("The computer's move:")
@@ -150,6 +153,7 @@ fun main() {
 					Thread.sleep(1000)
 					println("The computer has won!")
 					println(board.drawWithWin(computerSymbol))
+					Thread.sleep(2500)
 					playing = false
 				}
 			}
