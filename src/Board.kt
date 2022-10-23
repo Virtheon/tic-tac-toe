@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package tictactoe
 
 typealias Position = Pair<Int, Int>
+typealias Axis = List<Position>
 
 enum class Symbol(private val string: String) {
 	EMPTY(" "), X("X"), O("O");
@@ -32,16 +33,15 @@ enum class Symbol(private val string: String) {
 // a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
 // AxisOrientation provides a function to determine way the axis is oriented based on the index.
 // TODO: change comments
-// TODO: ::filter?
 class Board private constructor(
 	val size: Int,
-	private val grid: List<List<Symbol>>,
-	private val winAxes: List<List<Position>>
+	private val grid: Map<Position, Symbol>,
+	private val winAxes: List<Axis>
 ) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 	val isFull: Boolean
-		get() = grid.none { rows -> rows.any { symbol -> symbol == Symbol.EMPTY } }
+		get() = grid.none { it.value == Symbol.EMPTY }
 
 	enum class AxisOrientation(val strikethroughChar: Char) {
 		VERTICAL('|'), HORIZONTAL('-'),
@@ -59,8 +59,8 @@ class Board private constructor(
 		}
 	}
 
-	operator fun get(column: Int, row: Int): Symbol = grid[row][column]
-	operator fun get(position: Position): Symbol = this[position.first, position.second]
+	operator fun get(column: Int, row: Int): Symbol? = grid[column to row]
+	operator fun get(position: Position): Symbol = this[position]
 
 	// Normal constructor.
 	// Based on the size, builds a clean 2D array for squares, and
@@ -68,9 +68,15 @@ class Board private constructor(
 	constructor(size: Int = 3) :
 			this(size,
 
-				List(size) { List(size) { Symbol.EMPTY } },
+				List(size) { List(size) { Symbol.EMPTY } }
+					.flatMapIndexed { columnIndex: Int, row: List<Symbol> ->
+						row.mapIndexed { rowIndex, symbol ->
+							(columnIndex to rowIndex) to symbol
+						}
+					}
+					.toMap(),
 
-				List(size * 2 + 2) { axisIndex ->
+						List (size * 2 + 2) { axisIndex ->
 					List(size) { squareIndex ->
 						when (AxisOrientation.getType(axisIndex, size)) {
 							AxisOrientation.VERTICAL ->
@@ -88,11 +94,11 @@ class Board private constructor(
 	// Checks for the symbol on each square in each axis
 	// Returns when all squares have been checked, and immediately tries a new axis if any square doesn't match
 	// Returns null if there is no winning axis
-	private fun getWinningAxis(symbol: Symbol): List<Position>? {
+	private fun getWinningAxis(symbol: Symbol): Axis? {
 		val symbolMarksSquare = { potentialSquare: Position ->
 			this[potentialSquare] == symbol
 		}
-		val symbolFillsAxis = { potentialAxis: List<Position> ->
+		val symbolFillsAxis = { potentialAxis: Axis ->
 			potentialAxis.count(symbolMarksSquare) == size
 		}
 
