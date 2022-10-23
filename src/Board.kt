@@ -31,25 +31,17 @@ enum class Symbol(private val string: String) {
 // For optimisation purposes, the board contains a two-dimensional of all possible axes through which
 // a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
 // AxisOrientation provides a function to determine way the axis is oriented based on the index.
-// TODO: refactor to be immutable?
+// TODO: change comments
+// TODO: ::filter?
 class Board private constructor(
 	val size: Int,
-	private val squares: Array<Array<Symbol>>,
-	private val winAxes: Array<Array<Position>>
+	private val grid: List<List<Symbol>>,
+	private val winAxes: List<List<Position>>
 ) {
 	// size - 1 was used a lot in iterations, so having an index variable instead makes code less prone to mistakes
 	private val maxIndex = size - 1
 	val isFull: Boolean
-		get() {
-			for (column in 0 until size) {
-				for (row in 0 until size) {
-					if (this[column, row] == Symbol.EMPTY) {
-						return false
-					}
-				}
-			}
-			return true
-		}
+		get() = grid.none { rows -> rows.any { symbol -> symbol == Symbol.EMPTY } }
 
 	enum class AxisOrientation(val strikethroughChar: Char) {
 		VERTICAL('|'), HORIZONTAL('-'),
@@ -67,14 +59,8 @@ class Board private constructor(
 		}
 	}
 
-	operator fun get(column: Int, row: Int): Symbol = squares[row][column]
-	operator fun set(column: Int, row: Int, value: Symbol) {
-		squares[row][column] = value
-	}
+	operator fun get(column: Int, row: Int): Symbol = grid[row][column]
 	operator fun get(position: Position): Symbol = this[position.first, position.second]
-	operator fun set(position: Position, value: Symbol) {
-		this[position.first, position.second] = value
-	}
 
 	// Normal constructor.
 	// Based on the size, builds a clean 2D array for squares, and
@@ -82,10 +68,10 @@ class Board private constructor(
 	constructor(size: Int = 3) :
 			this(size,
 
-				Array(size) { Array(size) { Symbol.EMPTY } },
+				List(size) { List(size) { Symbol.EMPTY } },
 
-				Array(size * 2 + 2) { axisIndex ->
-					Array(size) { squareIndex ->
+				List(size * 2 + 2) { axisIndex ->
+					List(size) { squareIndex ->
 						when (AxisOrientation.getType(axisIndex, size)) {
 							AxisOrientation.VERTICAL ->
 								Position(axisIndex % size, squareIndex)
@@ -99,44 +85,27 @@ class Board private constructor(
 					}
 				})
 
-	constructor(board: Board) :
-			this(
-				board.size,
-
-				board.squares.map { row ->
-					row.clone()
-				}.toTypedArray(),
-
-				board.winAxes
-			)
-
 	// Checks for the symbol on each square in each axis
 	// Returns when all squares have been checked, and immediately tries a new axis if any square doesn't match
 	// Returns null if there is no winning axis
-	private fun getWinAxis(symbol: Symbol): Array<Position>? {
-		for (axis in winAxes) {
-			for (square in axis) {
-				if (this[square] == symbol) {
-					if (axis.indexOf(square) == maxIndex) {
-						return axis
-					}
-				} else {
-					break
-				}
-			}
+	private fun getWinningAxis(symbol: Symbol): List<Position>? {
+		val symbolMarksSquare = { potentialSquare: Position ->
+			this[potentialSquare] == symbol
 		}
-		return null
+		val symbolFillsAxis = { potentialAxis: List<Position> ->
+			potentialAxis.count(symbolMarksSquare) == size
+		}
+
+		return winAxes.firstOrNull(symbolFillsAxis)
 	}
 
-	fun hasWon(symbol: Symbol): Boolean {
-		return (getWinAxis(symbol) != null)
-	}
+	fun hasWon(symbol: Symbol): Boolean = getWinningAxis(symbol) != null
 
 	// The function looks for a winning axis. If there is one, it takes the string form of the board and
 	// replaces the symbols in each square with a matching line.
 	// If there is no winning axis, it returns null
 	fun drawWithWin(symbol: Symbol): String? {
-		val winAxis = getWinAxis(symbol)
+		val winAxis = getWinningAxis(symbol)
 		if (winAxis == null) {
 			return null
 		} else {
@@ -169,14 +138,12 @@ class Board private constructor(
 		}
 	}
 
-	fun clone(): Board = Board(this)
-
 	// The only function that directly accesses squares, seeing as it's optimised for printing line by line
 	override fun toString(): String {
 		val boardString = StringBuilder()
 		// Uses indices to avoid printing underline after last row
-		for (rowIndex in squares.indices) {
-			val row = squares[rowIndex]
+		for (rowIndex in grid.indices) {
+			val row = grid[rowIndex]
 			val rowString = StringBuilder()
 
 			for (column in row) {

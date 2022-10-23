@@ -93,7 +93,7 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 }
 
 fun main() {
-	val board = Board()
+	/*val board = Board()
 	var playing = true
 
 	println("Please pick a letter (either X or O)")
@@ -159,4 +159,9 @@ fun main() {
 			}
 		}
 	}
+
+	 */
+
+	val board = Board(3)
+	board.
 }
