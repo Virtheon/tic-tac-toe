@@ -38,7 +38,7 @@ fun toPosition(position: Int) = Position(position % 3, position / 3)
 
 // TODO: Implement Board::undo
 // TODO: maybe use threads
-fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position {
+/*fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position {
 	val enemySymbol = oppositeOf(computerSymbol)
 
 	var tempBoard: Board
@@ -90,7 +90,7 @@ fun computerMove(board: Board, computerSymbol: Symbol, random: Random): Position
 
 	@Suppress("UNREACHABLE_CODE")
 	return throw Exception("Board full")
-}
+}*/
 
 fun main() {
 	/*val board = Board()
@@ -163,5 +163,5 @@ fun main() {
 	 */
 
 	val board = Board(3)
-	board.
+	println(board.withMove(Symbol.X, 2 to 1))
 }

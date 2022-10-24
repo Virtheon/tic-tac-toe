@@ -26,12 +26,6 @@ enum class Symbol(private val string: String) {
 	override fun toString(): String = string
 }
 
-// Board keeps all the squares in a two-dimensional array of Symbols. They're stored by line first (the opposite
-// order from the bracket operators) to make it easier to print (see: toString())
-
-// For optimisation purposes, the board contains a two-dimensional of all possible axes through which
-// a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
-// AxisOrientation provides a function to determine way the axis is oriented based on the index.
 // TODO: change comments
 class Board private constructor(
 	val size: Int,
@@ -62,9 +56,7 @@ class Board private constructor(
 	operator fun get(column: Int, row: Int): Symbol? = grid[column to row]
 	operator fun get(position: Position): Symbol = this[position]
 
-	// Normal constructor.
-	// Based on the size, builds a clean 2D array for squares, and
-	// generates a 3D array with each square's coordinates through each axis
+
 	constructor(size: Int = 3) :
 			this(size,
 
@@ -74,9 +66,11 @@ class Board private constructor(
 							(columnIndex to rowIndex) to symbol
 						}
 					}
-					.toMap(),
+					.toMap()
+					// Sorted by row value first so it can be printed row by row
+					.toSortedMap(compareBy<Position> { it.second }.thenBy { it.first }),
 
-						List (size * 2 + 2) { axisIndex ->
+				List(size * 2 + 2) { axisIndex ->
 					List(size) { squareIndex ->
 						when (AxisOrientation.getType(axisIndex, size)) {
 							AxisOrientation.VERTICAL ->
@@ -91,9 +85,12 @@ class Board private constructor(
 					}
 				})
 
-	// Checks for the symbol on each square in each axis
-	// Returns when all squares have been checked, and immediately tries a new axis if any square doesn't match
-	// Returns null if there is no winning axis
+	fun withMove(symbol: Symbol, position: Position) = Board(
+		size,
+		grid.mapValues { if (it.key == position) symbol else it.value },
+		winAxes
+	)
+
 	private fun getWinningAxis(symbol: Symbol): Axis? {
 		val symbolMarksSquare = { potentialSquare: Position ->
 			this[potentialSquare] == symbol
@@ -107,9 +104,6 @@ class Board private constructor(
 
 	fun hasWon(symbol: Symbol): Boolean = getWinningAxis(symbol) != null
 
-	// The function looks for a winning axis. If there is one, it takes the string form of the board and
-	// replaces the symbols in each square with a matching line.
-	// If there is no winning axis, it returns null
 	fun drawWithWin(symbol: Symbol): String? {
 		val winAxis = getWinningAxis(symbol)
 		if (winAxis == null) {
@@ -144,34 +138,29 @@ class Board private constructor(
 		}
 	}
 
-	// The only function that directly accesses squares, seeing as it's optimised for printing line by line
-	override fun toString(): String {
-		val boardString = StringBuilder()
-		// Uses indices to avoid printing underline after last row
-		for (rowIndex in grid.indices) {
-			val row = grid[rowIndex]
-			val rowString = StringBuilder()
+	private var underline: String? = null
 
-			for (column in row) {
-				rowString.append("| $column ")
+	private fun underlineOf(row: String): String = underline
+			?: row.split("\n").last()
+				.replace(' ', '-')
+				.replace('X', '-')
+				.replace('O', '-')
+				.replace('|', ' ')
+				.apply { underline = this }
+
+	override fun toString(): String =
+		grid.toList()
+			.fold("| ") { str, (position, symbol) ->
+				val (column, row) = position
+				str + if (column == maxIndex) {
+					if (row == maxIndex) {
+						"$symbol |"
+					} else {
+						"$symbol |\n" + underlineOf("$str$symbol |") + "\n| "
+					}
+				} else {
+					"$symbol | "
+				}
 			}
-			rowString.append("|")
-
-			boardString.append(rowString)
-
-			// No newlines or underlines after the last row.
-			// Underlines just replace space, X and O with dashes and | with spaces.
-			if (rowIndex < maxIndex) {
-				boardString.append('\n')
-				val underline = rowString.toString()
-					.replace(' ', '-')
-					.replace('X', '-')
-					.replace('O', '-')
-					.replace('|', ' ')
-				boardString.append(underline).append('\n')
-			}
-		}
-		return boardString.toString()
-	}
 
 }
