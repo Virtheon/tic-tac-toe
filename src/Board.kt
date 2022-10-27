@@ -111,12 +111,11 @@ class Board private constructor(
 			.replace(' ', '-')
 			.replace('X', '-')
 			.replace('O', '-')
-			.replace('|', ' ')
 
 	private fun Map<Position, String>.rowStringAt(row: Int): String =
 		filterKeys { it.second == row }
-			.toList().fold("| ") { str, (position, symbol) ->
-				str + "$symbol |" + if (position.first == maxIndex) "" else " "
+			.toList().fold(" ") { str, (position, symbol) ->
+				str + symbol + if (position.first == maxIndex) " " else " | "
 			}
 
 	@JvmName("rowStringAtWithSymbol")
