@@ -108,14 +108,15 @@ class Board private constructor(
 	// TODO: pass underline through constructor?
 	private var underline: String =
 		grid.rowStringAt(0)
-			.replace(' ', '-')
-			.replace('X', '-')
-			.replace('O', '-')
+			.replace(' ', '─')
+			.replace('X', '─')
+			.replace('O', '─')
+			.replace('|', '┼')
 
 	private fun Map<Position, String>.rowStringAt(row: Int): String =
 		filterKeys { it.second == row }
 			.toList().fold(" ") { str, (position, symbol) ->
-				str + symbol + if (position.first == maxIndex) " " else " | "
+				str + symbol + if (position.first == maxIndex) " " else " │ "
 			}
 
 	@JvmName("rowStringAtWithSymbol")
