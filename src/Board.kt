@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package tictactoe
 
+// TODO: perhaps make into a value class? with column and row vals
 typealias Position = Pair<Int, Int>
 typealias Axis = List<Position>
 
@@ -104,63 +105,48 @@ class Board private constructor(
 
 	fun hasWon(symbol: Symbol): Boolean = getWinningAxis(symbol) != null
 
-	fun drawWithWin(symbol: Symbol): String? {
-		val winAxis = getWinningAxis(symbol)
-		if (winAxis == null) {
-			return null
-		} else {
-			// Builds a 2D table of editable strings based on the original string form
-			val boardString = toString()
-			val editableBoard = mutableListOf<StringBuilder>()
-			for (line in boardString.split('\n')) {
-				editableBoard.add(StringBuilder(line))
+	/*fun drawWithWin(symbol: Symbol): String? {
+		// NEED TO GET ACTUAL WIN POSITIONS
+		rows = toString().split("\n")
+			.mapIndexed { rowIndex, rowStr ->
+				if (rowIndex % 2 == 1) {
+					rowStr.split("| ")
+						.map { columnStr ->
+							AxisOrientation.getType() + columnStr.substring(1, columnStr.length)
+						}
+				} else rowStr
+			}
+	}*/
+
+	private var underline: String =
+		grid.rowStringAt(0)
+			.replace(' ', '-')
+			.replace('|', ' ')
+
+	private fun Map<Position, String>.rowStringAt(row: Int): String =
+		filterKeys { it.second == row }
+			.toList().fold("| ") { str, (position, symbol) ->
+				str + "$symbol |" + if (position.first == maxIndex) "" else " "
 			}
 
-			for (square in winAxis) {
-				val (column, row) = square
+	@JvmName("rowStringAtWithSymbol")
+	private fun Map<Position, Symbol>.rowStringAt(row: Int): String =
+		mapValues { it.value.toString() }.rowStringAt(row)
 
-				val lineIndex = row * 2
-				val charIndex = column * 4 + 2
-
-				// Changes strikethrough orientation based on whether it's a vertical, horizontal or diagonal axis
-				val axisIndex = winAxes.indexOf(winAxis)
-				val strikethrough: Char = AxisOrientation.getType(axisIndex, size).strikethroughChar
-
-				editableBoard[lineIndex][charIndex] = strikethrough
-			}
-
-			val finalBoard = StringBuilder()
-			for (line in editableBoard) {
-				finalBoard.append(line).append('\n')
-			}
-			finalBoard.deleteCharAt(finalBoard.length - 1)
-			return finalBoard.toString()
+	private tailrec fun concatenateRows(
+		string: String = "",
+		row: Int = 0,
+		grid: Map<Position, Symbol> = this.grid
+	): String =
+		when (row) {
+			0 -> concatenateRows("${grid.rowStringAt(row)}\n$underline", 1)
+			maxIndex -> concatenateRows("$string\n${grid.rowStringAt(row)}", row + 1)
+			size -> string
+			else -> concatenateRows("$string\n${grid.rowStringAt(row)}\n$underline", row + 1)
 		}
+
+	override fun toString(): String {
+		return concatenateRows()
 	}
-
-	private var underline: String? = null
-
-	private fun underlineOf(row: String): String = underline
-			?: row.split("\n").last()
-				.replace(' ', '-')
-				.replace('X', '-')
-				.replace('O', '-')
-				.replace('|', ' ')
-				.apply { underline = this }
-
-	override fun toString(): String =
-		grid.toList()
-			.fold("| ") { str, (position, symbol) ->
-				val (column, row) = position
-				str + if (column == maxIndex) {
-					if (row == maxIndex) {
-						"$symbol |"
-					} else {
-						"$symbol |\n" + underlineOf("$str$symbol |") + "\n| "
-					}
-				} else {
-					"$symbol | "
-				}
-			}
 
 }
