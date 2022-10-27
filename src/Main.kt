@@ -163,5 +163,11 @@ fun main() {
 	 */
 
 	val board = Board(3)
-	println(board.withMove(Symbol.X, 2 to 1))
+	val board2 = board
+		.withMove(Symbol.X, Position(0, 0))
+		.withMove(Symbol.X, Position(0, 1))
+		.withMove(Symbol.X, Position(0, 2))
+	println(board2.drawWithWin(Symbol.X))
+	println()
+	println(board2.drawWithNumbers())
 }

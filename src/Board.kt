@@ -55,7 +55,7 @@ class Board private constructor(
 	}
 
 	operator fun get(column: Int, row: Int): Symbol? = grid[column to row]
-	operator fun get(position: Position): Symbol = this[position]
+	operator fun get(position: Position): Symbol? = grid[position]
 
 
 	constructor(size: Int = 3) :
@@ -105,22 +105,12 @@ class Board private constructor(
 
 	fun hasWon(symbol: Symbol): Boolean = getWinningAxis(symbol) != null
 
-	/*fun drawWithWin(symbol: Symbol): String? {
-		// NEED TO GET ACTUAL WIN POSITIONS
-		rows = toString().split("\n")
-			.mapIndexed { rowIndex, rowStr ->
-				if (rowIndex % 2 == 1) {
-					rowStr.split("| ")
-						.map { columnStr ->
-							AxisOrientation.getType() + columnStr.substring(1, columnStr.length)
-						}
-				} else rowStr
-			}
-	}*/
-
+	// TODO: pass underline through constructor?
 	private var underline: String =
 		grid.rowStringAt(0)
 			.replace(' ', '-')
+			.replace('X', '-')
+			.replace('O', '-')
 			.replace('|', ' ')
 
 	private fun Map<Position, String>.rowStringAt(row: Int): String =
@@ -136,14 +126,26 @@ class Board private constructor(
 	private tailrec fun concatenateRows(
 		string: String = "",
 		row: Int = 0,
-		grid: Map<Position, Symbol> = this.grid
+		grid: Map<Position, String> = this.grid.mapValues { it.value.toString() }
 	): String =
 		when (row) {
-			0 -> concatenateRows("${grid.rowStringAt(row)}\n$underline", 1)
-			maxIndex -> concatenateRows("$string\n${grid.rowStringAt(row)}", row + 1)
+			0 -> concatenateRows("${grid.rowStringAt(row)}\n$underline", 1, grid)
+			maxIndex -> concatenateRows("$string\n${grid.rowStringAt(row)}", row + 1, grid)
 			size -> string
-			else -> concatenateRows("$string\n${grid.rowStringAt(row)}\n$underline", row + 1)
+			else -> concatenateRows("$string\n${grid.rowStringAt(row)}\n$underline", row + 1, grid)
 		}
+
+	fun drawWithWin(symbol: Symbol): String? {
+		val winAxis = getWinningAxis(symbol)
+		val char = AxisOrientation.getType(winAxes.indexOf(winAxis), size).strikethroughChar.toString()
+		return if (winAxis != null) {
+			val updatedGrid = grid.mapValues { if (winAxis.contains(it.key)) char else it.value.toString() }
+			concatenateRows(grid = updatedGrid)
+		} else null
+	}
+
+	fun drawWithNumbers(): String =
+		concatenateRows(grid = grid.mapValues { (it.key.second * 3 + it.key.first + 1).toString() })
 
 	override fun toString(): String {
 		return concatenateRows()
