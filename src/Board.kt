@@ -180,9 +180,9 @@ class Board private constructor(
 			val rowString = StringBuilder()
 
 			for (column in row) {
-				rowString.append("| $column ")
+				rowString.append("│ $column ")
 			}
-			rowString.append("|")
+			rowString.append("│")
 
 			boardString.append(rowString)
 
@@ -191,10 +191,10 @@ class Board private constructor(
 			if (rowIndex < maxIndex) {
 				boardString.append('\n')
 				val underline = rowString.toString()
-					.replace(' ', '-')
-					.replace('X', '-')
-					.replace('O', '-')
-					.replace('|', ' ')
+					.replace(' ', '─')
+					.replace('X', '─')
+					.replace('O', '─')
+					.replace('│', '┼')
 				boardString.append(underline).append('\n')
 			}
 		}
