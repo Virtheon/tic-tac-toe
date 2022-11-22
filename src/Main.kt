@@ -36,8 +36,8 @@ fun oppositeOf(symbol: Symbol): Symbol =
 
 fun toPosition(position: Int) = Position(position % 3, position / 3)
 
-// TODO: Implement Board::undo
-// TODO: maybe use threads
+// TODO: Implement Board::undo?
+// TODO: maybe use threads/concurrency
 fun computerMove(board: Board, computerSymbol: Symbol, random: Random = Random): Position {
 	val enemySymbol = oppositeOf(computerSymbol)
 
