@@ -111,7 +111,7 @@ class Board private constructor(
 			.replace(' ', '─')
 			.replace('X', '─')
 			.replace('O', '─')
-			.replace('|', '┼')
+			.replace('│', '┼')
 
 	private fun Map<Position, String>.rowStringAt(row: Int): String =
 		filterKeys { it.second == row }
