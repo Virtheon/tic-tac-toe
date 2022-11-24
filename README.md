@@ -1,6 +1,8 @@
+(NOTE: This branch was made to test my ability to use declarative techniques, I don't intend to merge it into master)
+
 # tic-tac-toe
 
-It's a tic-tac-toe game, not sure what to tell ya.
+It's a tic-tac-toe game for the terminal.
 
 # Build Instructions
 
