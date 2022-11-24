@@ -31,7 +31,8 @@ enum class Symbol(private val string: String) {
 // For optimisation purposes, the board contains a two-dimensional of all possible axes through which
 // a player can win. Each axis is an array of squares, and each square is a 2D vector representing the coordinates.
 // AxisOrientation provides a function to determine way the axis is oriented based on the index.
-// TODO: refactor to be immutable?
+// TODO: reduce clone allocations for computer calculations (maybe add undo function?)
+// TODO: reimplement winning axes into four types: horizontal, vertical, and the two diagonals, the former two having row/column properties so they can draw themselves on the board
 class Board private constructor(
 	val size: Int,
 	private val squares: Array<Array<Symbol>>,
@@ -71,6 +72,7 @@ class Board private constructor(
 	operator fun set(column: Int, row: Int, value: Symbol) {
 		squares[row][column] = value
 	}
+
 	operator fun get(position: Position): Symbol = this[position.first, position.second]
 	operator fun set(position: Position, value: Symbol) {
 		this[position.first, position.second] = value
@@ -128,6 +130,7 @@ class Board private constructor(
 		return null
 	}
 
+	// TODO: cache the winAxis so it doesn't need to be generated twice when drawWithWin is called
 	fun hasWon(symbol: Symbol): Boolean {
 		return (getWinAxis(symbol) != null)
 	}
@@ -171,6 +174,9 @@ class Board private constructor(
 
 	fun clone(): Board = Board(this)
 
+	// TODO: outsource string construction to another function which takes a Map<Position, Character>
+	// TODO: add board string with numbers (so player knows which number will mark which position)
+	// TODO: alter board to look more like traditional tic-tac-toe board without walls
 	// The only function that directly accesses squares, seeing as it's optimised for printing line by line
 	override fun toString(): String {
 		val boardString = StringBuilder()

@@ -36,8 +36,7 @@ fun oppositeOf(symbol: Symbol): Symbol =
 
 fun toPosition(position: Int) = Position(position % 3, position / 3)
 
-// TODO: Implement Board::undo?
-// TODO: maybe use threads/concurrency
+// TODO: maybe use threads/concurrency (making boards immutable may be needed for that instead of allocating a single clone)
 fun computerMove(board: Board, computerSymbol: Symbol, random: Random = Random): Position {
 	val enemySymbol = oppositeOf(computerSymbol)
 
@@ -106,8 +105,6 @@ fun main() {
 	val userSymbol = toSymbol(userLetter)
 	val computerSymbol = oppositeOf(userSymbol)
 
-	// TODO: add board string with numbers
-	// TODO: make computer search for wins before losses
 	while (playing) {
 		println(board)
 		println()
